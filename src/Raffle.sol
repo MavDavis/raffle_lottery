@@ -9,6 +9,8 @@ pragma solidity 0.8.19;
  **/
 contract Raffle{
     uint256 immutable private i_entranceFee;
+    /** Errors */
+    error Raffle_RevertValueIsLowerThanEntranceFee();
     constructor(uint256 entranceFee){
         i_entranceFee = entranceFee; //ethers
     }
@@ -16,6 +18,10 @@ contract Raffle{
         
     }
     function acceptsUserToEnterRaffle(address User)payable public {
+       if( msg.value <= i_entranceFee){
+            revert Raffle_RevertValueIsLowerThanEntranceFee();
+       }
+        User;
         
     }
     // getters
