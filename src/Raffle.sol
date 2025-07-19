@@ -8,9 +8,13 @@ pragma solidity 0.8.19;
 * @notice cc: Title
  **/
 contract Raffle{
-    uint256 immutable private i_entranceFee;
     /** Errors */
     error Raffle_RevertValueIsLowerThanEntranceFee();
+    /* States */
+    uint256 immutable private i_entranceFee;
+    address[] public listOfUsers;
+    /* Events */
+    event Ruffle_addedNewUser(address indexed user);
     constructor(uint256 entranceFee){
         i_entranceFee = entranceFee; //ethers
     }
@@ -21,7 +25,8 @@ contract Raffle{
        if( msg.value <= i_entranceFee){
             revert Raffle_RevertValueIsLowerThanEntranceFee();
        }
-        User;
+        listOfUsers.push(User);
+        emit Ruffle_addedNewUser(User);
         
     }
     // getters
