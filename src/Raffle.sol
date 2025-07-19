@@ -21,12 +21,12 @@ contract Raffle{
     function pickWinner()view public returns (address){
         
     }
-    function acceptsUserToEnterRaffle(address User)payable public {
+    function acceptsUserToEnterRaffle()payable public {
        if( msg.value <= i_entranceFee){
             revert Raffle_RevertValueIsLowerThanEntranceFee();
        }
-        listOfUsers.push(User);
-        emit Ruffle_addedNewUser(User);
+        listOfUsers.push(msg.sender);
+        emit Ruffle_addedNewUser(msg.sender);
         
     }
     // getters
