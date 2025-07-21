@@ -1,0 +1,21 @@
+Enum is used for defining different states of a particular object.
+Eg: enum orderState = {loading, pending, delivered, cancelled}
+
+Struct is a normal object
+Eg: Struct User {
+    uint16 Age,
+    uint256 Id,
+    String Name,
+    address user
+}
+mapping is used to take in a value into an array and find the value.
+    mapping(uint256 => User) private Userdetail;
+ userDetails[_id] = User({
+        age: 16,
+        id: _id,
+        name: _name,
+        user: msg.sender
+    });
+
+when a function has virtual on it, it is meant to be "override"n by the contract that imports it.
+Notice that fuldillRandomWord function is an internal function, so we are not able to call it. What the overide actually does is to define it the way we want to use it in the parent contract so that when we call the external fun, that triggers it, it gets our overidden function.
