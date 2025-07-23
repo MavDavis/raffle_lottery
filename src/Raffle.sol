@@ -30,6 +30,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
     /* Events */
     event Ruffle_addedNewUser(address indexed user);
+    event Raffle_WinnerPicked(address indexed winner);
     /**
      * Errors
      */
@@ -101,6 +102,8 @@ contract Raffle is VRFConsumerBaseV2Plus {
         if(!Success){
             revert Raffle__Transfer__Failed();
         }
+        s_listOfUsers = new address payable[](0);
+        emit Raffle_WinnerPicked(s_recentWinner);
         // s_results[s_rollers[requestId]] = d20Value;
         // emit DiceLanded(requestId, d20Value);
     }
