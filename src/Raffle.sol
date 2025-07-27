@@ -19,7 +19,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     uint256 private immutable i_entranceFee;
     // contract immutable
     uint256 private immutable i_interval;
-    uint256 private immutable i_timestamp;
+    uint256 private immutable s_lastTimeStamp;
 
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
     uint32 private constant NUM_WORDS = 1;
@@ -38,6 +38,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     error Raffle_RevertValueIsLowerThanEntranceFee();
     error Raffle__Transfer__Failed();
     error Raffle__Cannot__Acept__User__Atm();
+    // error Raffle__UpkeepNotNeeded(address payable balance, uint256 usersLength, uint256 raffleState );
 
     constructor(
         uint256 subscriptionId,
@@ -52,17 +53,69 @@ contract Raffle is VRFConsumerBaseV2Plus {
         i_subscriptionId = subscriptionId;
         i_entranceFee = entranceFee;
         s_raffleState = RaffleState.OPEN;
-        i_timestamp = block.timestamp;
+        s_lastTimeStamp = block.timestamp;
         i_callbackGasLimit = callbackGasLimit;
         // uint256 balance = address(this).balance;
         // if (balance > 0) {
         //     payable(msg.sender).transfer(balance);
         // }
     }
+/**
+     * @dev This is the function that the Chainlink Keeper nodes call
+     * they look for `upkeepNeeded` to return True.
+     * the following should be true for this to return true:
+     * 1. The time interval has passed between raffle runs.
+     * 2. The lottery is open.
+     * 3. The contract has ETH.
+     * 4. Implicity, your subscription is funded with LINK.
+     */
+    function checkUpkeep(bytes memory /* checkData */ )
+        public
+        view
+        // override
+        returns (bool upkeepNeeded, bytes memory /* performData */ )
+    {
+        bool isOpen = RaffleState.OPEN == s_raffleState;
+        bool timePassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
+        bool hasPlayers = s_listOfUsers.length > 0;
+        bool hasBalance = address(this).balance > 0;
+        upkeepNeeded = (timePassed && isOpen && hasBalance && hasPlayers);
+        return (upkeepNeeded, "0x0"); // can we comment this out?
+    }
 
+    /**
+     * @dev Once `checkUpkeep` is returning `true`, this function is called
+     * and it kicks off a Chainlink VRF call to get a random winner.
+     */
+    function performUpkeep(bytes calldata /* performData */ ) external /*override*/ {
+        (bool upkeepNeeded,) = checkUpkeep("");
+        // require(upkeepNeeded, "Upkeep not needed");
+        if (!upkeepNeeded) {
+            // revert Raffle__UpkeepNotNeeded(address(this).balance, s_listOfUsers.length, uint256(s_raffleState));
+        }
+
+        s_raffleState = RaffleState.CALCULATING;
+
+        // Will revert if subscription is not set and funded.
+        // uint256 requestId = s_vrfCoordinator.requestRandomWords(
+        //     VRFV2PlusClient.RandomWordsRequest({
+        //         keyHash: i_gasLane,
+        //         subId: i_subscriptionId,
+        //         requestConfirmations: REQUEST_CONFIRMATIONS,
+        //         callbackGasLimit: i_callbackGasLimit,
+        //         numWords: NUM_WORDS,
+        //         extraArgs: VRFV2PlusClient._argsToBytes(
+        //             // Set nativePayment to true to pay for VRF requests with Sepolia ETH instead of LINK
+        //             VRFV2PlusClient.ExtraArgsV1({nativePayment: false})
+        //         )
+        //     })
+        // );
+        // // Quiz... is this redundant?
+        // emit RequestedRaffleWinner(requestId);
+    }
     function pickWinner() external  returns (address) {
         // check time spent
-        if ((block.timestamp - i_timestamp) < i_interval) {
+        if ((block.timestamp - s_lastTimeStamp) < i_interval) {
             revert();
         }
         s_raffleState = RaffleState.CALCULATING;
@@ -79,7 +132,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
                 )
             })
         );
-        requestId;
+        return s_listOfUsers[requestId];
     }
 
     function acceptsUserToEnterRaffle() external payable {
