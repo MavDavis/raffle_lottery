@@ -38,7 +38,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     error Raffle_RevertValueIsLowerThanEntranceFee();
     error Raffle__Transfer__Failed();
     error Raffle__Cannot__Acept__User__Atm();
-    // error Raffle__UpkeepNotNeeded(address payable balance, uint256 usersLength, uint256 raffleState );
+    error Raffle__UpkeepNotNeeded(uint256 balance, uint256 usersLength, uint256 raffleState );
 
     constructor(
         uint256 subscriptionId,
@@ -91,7 +91,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         (bool upkeepNeeded,) = checkUpkeep("");
         // require(upkeepNeeded, "Upkeep not needed");
         if (!upkeepNeeded) {
-            // revert Raffle__UpkeepNotNeeded(address(this).balance, s_listOfUsers.length, uint256(s_raffleState));
+            revert Raffle__UpkeepNotNeeded(address(this).balance, s_listOfUsers.length, uint256(s_raffleState));
         }
 
         s_raffleState = RaffleState.CALCULATING;
