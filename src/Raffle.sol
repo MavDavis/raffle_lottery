@@ -40,16 +40,25 @@ contract Raffle is VRFConsumerBaseV2Plus {
     error Raffle__Cannot__Acept__User__Atm();
     error Raffle__UpkeepNotNeeded(uint256 balance, uint256 usersLength, uint256 raffleState );
 
+    // constructor(
+    //     uint256 subscriptionId,
+    //     bytes32 gasLane, // keyHash
+    //     uint256 interval,
+    //     uint256 entranceFee,
+    //     uint32 callbackGasLimit,
+    //     address vrfCoordinatorV2
+    // ) 
     constructor(
-        uint256 subscriptionId,
-        bytes32 gasLane, // keyHash
-        uint256 interval,
-        uint256 entranceFee,
-        uint32 callbackGasLimit,
-        address vrfCoordinatorV2
-    ) VRFConsumerBaseV2Plus(vrfCoordinatorV2) {
+    uint256 entranceFee,
+    uint256 subscriptionId,
+    bytes32 gasLane,
+    uint256 automationUpdateInterval,
+    uint32 callbackGasLimit,
+    address vrfCoordinatorV2_5
+)
+    VRFConsumerBaseV2Plus(vrfCoordinatorV2_5) {
         i_gasLane = gasLane;
-        i_interval = interval;
+        i_interval = automationUpdateInterval;
         i_subscriptionId = subscriptionId;
         i_entranceFee = entranceFee;
         s_raffleState = RaffleState.OPEN;
