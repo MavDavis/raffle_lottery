@@ -5,13 +5,12 @@ import {Script, console} from "forge-std/Script.sol";
 import {Raffle} from "../src/Raffle.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 
-contract DeployRaffle is Script{
-    function run()public{
-
+contract DeployRaffle is Script {
+    function run() public returns (Raffle, HelperConfig) {
         HelperConfig helperConfig = new HelperConfig();
         HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
         vm.startBroadcast(config.account);
-     
+
         Raffle raffle = new Raffle(
             config.entranceFee,
             config.subscriptionId,
@@ -22,6 +21,7 @@ contract DeployRaffle is Script{
         );
         vm.stopBroadcast();
         console.log("Raffle deployed to: ", address(raffle));
+        return (raffle, helperConfig);
     }
     // function deployRaffle()public return (Raffle, HelperConfig){
 

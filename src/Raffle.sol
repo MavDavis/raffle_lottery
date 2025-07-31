@@ -11,8 +11,12 @@ import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/V
 * @notice cc: Title
  **/
 contract Raffle is VRFConsumerBaseV2Plus {
-    enum RaffleState { OPEN, CALCULATING}
+    enum RaffleState {
+        OPEN,
+        CALCULATING
+    }
     // Chainlink VRF Variables
+
     uint256 private immutable i_subscriptionId;
     bytes32 private immutable i_gasLane;
     uint32 private immutable i_callbackGasLimit;
@@ -38,7 +42,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     error Raffle_RevertValueIsLowerThanEntranceFee();
     error Raffle__Transfer__Failed();
     error Raffle__Cannot__Acept__User__Atm();
-    error Raffle__UpkeepNotNeeded(uint256 balance, uint256 usersLength, uint256 raffleState );
+    error Raffle__UpkeepNotNeeded(uint256 balance, uint256 usersLength, uint256 raffleState);
 
     // constructor(
     //     uint256 subscriptionId,
@@ -47,16 +51,15 @@ contract Raffle is VRFConsumerBaseV2Plus {
     //     uint256 entranceFee,
     //     uint32 callbackGasLimit,
     //     address vrfCoordinatorV2
-    // ) 
+    // )
     constructor(
-    uint256 entranceFee,
-    uint256 subscriptionId,
-    bytes32 gasLane,
-    uint256 automationUpdateInterval,
-    uint32 callbackGasLimit,
-    address vrfCoordinatorV2_5
-)
-    VRFConsumerBaseV2Plus(vrfCoordinatorV2_5) {
+        uint256 entranceFee,
+        uint256 subscriptionId,
+        bytes32 gasLane,
+        uint256 automationUpdateInterval,
+        uint32 callbackGasLimit,
+        address vrfCoordinatorV2_5
+    ) VRFConsumerBaseV2Plus(vrfCoordinatorV2_5) {
         i_gasLane = gasLane;
         i_interval = automationUpdateInterval;
         i_subscriptionId = subscriptionId;
@@ -69,7 +72,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         //     payable(msg.sender).transfer(balance);
         // }
     }
-/**
+    /**
      * @dev This is the function that the Chainlink Keeper nodes call
      * they look for `upkeepNeeded` to return True.
      * the following should be true for this to return true:
@@ -78,11 +81,15 @@ contract Raffle is VRFConsumerBaseV2Plus {
      * 3. The contract has ETH.
      * 4. Implicity, your subscription is funded with LINK.
      */
+
     function checkUpkeep(bytes memory /* checkData */ )
         public
         view
-        // override
-        returns (bool upkeepNeeded, bytes memory /* performData */ )
+        returns (
+            // override
+            bool upkeepNeeded,
+            bytes memory /* performData */
+        )
     {
         bool isOpen = RaffleState.OPEN == s_raffleState;
         bool timePassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
@@ -122,7 +129,8 @@ contract Raffle is VRFConsumerBaseV2Plus {
         // // Quiz... is this redundant?
         // emit RequestedRaffleWinner(requestId);
     }
-    function pickWinner() external  returns (address) {
+
+    function pickWinner() external returns (address) {
         // check time spent
         if ((block.timestamp - s_lastTimeStamp) < i_interval) {
             revert();
@@ -148,7 +156,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         if (msg.value <= i_entranceFee) {
             revert Raffle_RevertValueIsLowerThanEntranceFee();
         }
-        if(s_raffleState == RaffleState.CALCULATING){
+        if (s_raffleState == RaffleState.CALCULATING) {
             revert Raffle__Cannot__Acept__User__Atm();
         }
         s_listOfUsers.push(payable(msg.sender));
@@ -160,8 +168,8 @@ contract Raffle is VRFConsumerBaseV2Plus {
         address payable recent_winner = s_listOfUsers[d20Value];
         s_recentWinner = recent_winner;
         s_raffleState = RaffleState.OPEN;
-        (bool Success, )= recent_winner.call{value:address(this).balance}("");
-        if(!Success){
+        (bool Success,) = recent_winner.call{value: address(this).balance}("");
+        if (!Success) {
             revert Raffle__Transfer__Failed();
         }
         s_listOfUsers = new address payable[](0);
@@ -173,5 +181,8 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
     function getEntranceFee() public view returns (uint256) {
         return i_entranceFee;
+    }
+    function getRaffleState() public view returns (RaffleState) {
+        return s_raffleState;
     }
 }
