@@ -6,7 +6,6 @@ import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/V
 
 /*
 * @Title A ruffle smart contract that takes in users for a bet and picks a random winner
-* @dev Implements chainLink VRV v2.5
 * @author Mavdavis
  **/
 contract Raffle is VRFConsumerBaseV2Plus {
