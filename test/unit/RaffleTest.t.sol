@@ -19,7 +19,6 @@ contract RaffleTest is Test{
             address account;
 
             address public PLAYER = makeAddr("player");
-            uint256 public constant ENTRANCE_FEE = 0.01 ether;
             uint256 public constant PLAYER_STARTING_BALANCE = 10 ether;
             // Deploy the Raffle contract and HelperConfig
       function setUp() public {
@@ -36,9 +35,23 @@ contract RaffleTest is Test{
                link = config.link;
                account = config.account;
 
+
          }
 
         function testRaffleInitialization() public view {
          assertEq(uint256(raffle.getRaffleState()), uint256(Raffle.RaffleState.OPEN));
          } 
+         function testRaffleEntranceFeeReverts() public {
+            vm.prank(PLAYER);
+            vm.expectRevert(Raffle.Raffle_RevertValueIsLowerThanEntranceFee.selector);
+            raffle.acceptsUserToEnterRaffle();
+         }
+      //    find why this test is failing
+         function testAcceptsUserToEnterRaffle() public {
+            vm.prank(PLAYER);
+            vm.deal(PLAYER, PLAYER_STARTING_BALANCE);
+            raffle.acceptsUserToEnterRaffle{value: entranceFee}();
+            emit log_uint(entranceFee); // Should print 10000000000000000
+            assertEq(raffle.getPlayer(0), PLAYER);
+         }
     }
