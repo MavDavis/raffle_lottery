@@ -24,6 +24,8 @@ contract RaffleTest is Test{
       function setUp() public {
          DeployRaffle deployRaffle = new DeployRaffle();
          (raffle, helperConfig) = deployRaffle.run();
+          vm.deal(PLAYER, PLAYER_STARTING_BALANCE);
+
          HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
          // Set the variables from the config
                subscriptionId = config.subscriptionId;
@@ -49,9 +51,8 @@ contract RaffleTest is Test{
       //    find why this test is failing
          function testAcceptsUserToEnterRaffle() public {
             vm.prank(PLAYER);
-            vm.deal(PLAYER, PLAYER_STARTING_BALANCE);
             raffle.acceptsUserToEnterRaffle{value: entranceFee}();
-            emit log_uint(entranceFee); // Should print 10000000000000000
-            assertEq(raffle.getPlayer(0), PLAYER);
+            address playerRecorded = raffle.getPlayer(0);
+            assert(playerRecorded == PLAYER);
          }
     }
