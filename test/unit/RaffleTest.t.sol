@@ -20,6 +20,9 @@ contract RaffleTest is Test{
 
             address public PLAYER = makeAddr("player");
             uint256 public constant PLAYER_STARTING_BALANCE = 10 ether;
+             // Events
+             event Ruffle_addedNewUser(address indexed user);
+             event Raffle_WinnerPicked(address indexed winner);
             // Deploy the Raffle contract and HelperConfig
       function setUp() public {
          DeployRaffle deployRaffle = new DeployRaffle();
@@ -54,5 +57,24 @@ contract RaffleTest is Test{
             raffle.acceptsUserToEnterRaffle{value: entranceFee}();
             address playerRecorded = raffle.getPlayer(0);
             assert(playerRecorded == PLAYER);
+         }
+         function testIfRaffleEmitsEvent()public{
+            vm.prank(PLAYER);
+            vm.expectEmit(true, false, false, false, address(raffle));
+            emit Ruffle_addedNewUser(PLAYER);
+            raffle.acceptsUserToEnterRaffle{value: entranceFee}();
+         }
+         function testDonotAcceptUsersIfRaffleISNotOpen()public{
+            vm.prank(PLAYER);
+            // if raffle state is calculating, it should revert;
+            // actually call the function that changes the state to calculating which is pickWinner()
+            // raffle.setRaffleState(Raffle.RaffleState.CALCULATING);
+            raffle.acceptsUserToEnterRaffle{value: entranceFee}();
+            vm.warp(block.timestamp + automationUpdateInterval + 1);
+            vm.roll(block.number + 1);
+            raffle.performUpkeep("");
+            vm.expectRevert(Raffle.Raffle__Cannot__Acept__User__Atm.selector);
+            raffle.acceptsUserToEnterRaffle{value: entranceFee}();
+
          }
     }

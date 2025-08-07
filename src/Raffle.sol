@@ -175,6 +175,9 @@ contract Raffle is VRFConsumerBaseV2Plus {
         // s_results[s_rollers[requestId]] = d20Value;
         // emit DiceLanded(requestId, d20Value);
     }
+       function setRaffleState(RaffleState newState) external {
+        s_raffleState = newState;
+    }
     // getters
 
     function getEntranceFee() public view returns (uint256) {
@@ -186,4 +189,5 @@ contract Raffle is VRFConsumerBaseV2Plus {
     function getPlayer(uint256 indexOfPlayer) public view returns (address) {
         return s_listOfUsers[indexOfPlayer];
     }
+ 
 }
