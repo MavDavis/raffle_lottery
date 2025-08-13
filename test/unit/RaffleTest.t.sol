@@ -66,14 +66,12 @@ contract RaffleTest is Test{
          }
          function testDonotAcceptUsersIfRaffleISNotOpen()public{
             vm.prank(PLAYER);
-            // if raffle state is calculating, it should revert;
-            // actually call the function that changes the state to calculating which is pickWinner()
-            // raffle.setRaffleState(Raffle.RaffleState.CALCULATING);
             raffle.acceptsUserToEnterRaffle{value: entranceFee}();
             vm.warp(block.timestamp + automationUpdateInterval + 1);
             vm.roll(block.number + 1);
             raffle.performUpkeep("");
             vm.expectRevert(Raffle.Raffle__Cannot__Acept__User__Atm.selector);
+            vm.prank(PLAYER);
             raffle.acceptsUserToEnterRaffle{value: entranceFee}();
 
          }
